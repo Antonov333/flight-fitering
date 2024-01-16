@@ -17,4 +17,10 @@ public class MainTest {
             FlightService.totalTimeLanded(null);
         });
     }
+
+    @Test
+    public void checkConstants(){
+        Assert.assertEquals(60*60*1000, FlightService.ONE_HOUR);
+        Assert.assertEquals(FlightService.TWO_HOURS, FlightService.ONE_HOUR*2);
+    }
 }

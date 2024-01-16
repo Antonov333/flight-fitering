@@ -1,13 +1,12 @@
 package com.gridnine.testing;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.gridnine.testing.FlightService.TWO_HOURS;
 
 public class Main {
     public static void main(String[] args) {
-
+// Select only correct landed time flights
         List <Flight> setOfFlight = FlightBuilder.createFlights();
         System.out.println("setOfFlight.size() = " + setOfFlight.size());
         System.out.println(setOfFlight + "\n" + TWO_HOURS);
@@ -17,6 +16,18 @@ public class Main {
                         TWO_HOURS).toList();
         System.out.println("setOfFlight.size() = " + setOfFlight.size());
         System.out.println(setOfFlight + "\n");
+
+// Select flights with departure correctly scheduled
+        FlightService flightService = new FlightService(FlightBuilder.createFlights());
+        setOfFlight = flightService.getFlightsWithArrivalAfterDeparture().getFlights();
+
+
+        setOfFlight = setOfFlight.stream()
+                .filter(FlightService::notDepartedYet).toList();
+        System.out.println("setOfFlight.size() = " + setOfFlight.size());
+        System.out.println(setOfFlight + "\n");
+
+
 
 
 
