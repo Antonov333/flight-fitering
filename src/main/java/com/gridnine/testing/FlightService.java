@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/**@author Sergei Antonov
  * <h2>FlightService</h2>
  * Contains methods implementing criteria for filtering flights from test flight set
  */
@@ -25,7 +25,7 @@ public class FlightService {
     public static final long ONE_HOUR = 3600000;
     private final List<Flight> flights;
 
-    FlightService(List<Flight> flights){
+    public FlightService(List<Flight> flights) {
         if (flights == null) {this.flights = new ArrayList<>();}
         else {this.flights = flights;}
     }
@@ -47,9 +47,9 @@ public class FlightService {
     /**
      * <h2>private static void printFlights(List<Flight> flights)</h2>
      *
-     * @param flights If flights arg is null then throws. Normally prints provided list of flights to console
+     * @param flights If flights arg is null then throws.
+     * Prints provided list of flights to console while non null arg provided
      */
-
     private static void printFlights(List<Flight> flights) {
         throwIfNull(flights);
         for (Flight f : flights) {
@@ -62,7 +62,6 @@ public class FlightService {
      *
      * @return list of flights with departure time later than now
      */
-
     public FlightService getFlightsNotDepartedYet() {
         return FlightService.getFlightsNotDepartedYet(flights);
     }
@@ -72,11 +71,10 @@ public class FlightService {
         return this;
     }
 
-    public static FlightService getFlightsNotDepartedYet(List<Flight> flights){
+    private static FlightService getFlightsNotDepartedYet(List<Flight> flights) {
         throwIfNull(flights);
         List<Flight> flightList = getListOfFlightsNotDepartedYet(flights);
         FlightService flightService = new FlightService(flightList);
-        flightService.printFlights();
         return flightService;
     }
 
@@ -91,10 +89,9 @@ public class FlightService {
      * @return instant of FlightService class containing list of correctly scheduled flights,
      * i.e. departure moment is before arrival
      */
-    public static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights) {
+    private static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights) {
         List<Flight> flightList = getListOfFlightsWithArrivalAfterDeparture(flights);
         FlightService flightService = new FlightService(flightList);
-        flightService.printFlights();
         return flightService;
     }
 
@@ -119,7 +116,6 @@ public class FlightService {
                 .filter(flight -> FlightService.totalTimeLanded(flight) < TWO_HOURS)
                 .toList();
         FlightService flightService = new FlightService(flightList);
-        flightService.printFlights();
         return flightService;
     }
 
@@ -136,7 +132,7 @@ public class FlightService {
      * @return true if flight has at least one segment and departure time of first segment
      * is before arrival time of last segment
      */
-    public static boolean flightArrivalIsAfterDeparture(Flight flight){
+    private static boolean flightArrivalIsAfterDeparture(Flight flight) {
         throwIfNull(flight);
         List<Segment> segmentList = flight.getSegments();
         int size = segmentList.size();
@@ -150,7 +146,7 @@ public class FlightService {
      * @param flight nullable
      * @return total time landed in milliseconds
      */
-    public static long totalTimeLanded(Flight flight){
+    private static long totalTimeLanded(Flight flight) {
 
         if (flight == null) {throw new IllegalArgumentException("flight must not be null");}
         final List<Segment> segments = flight.getSegments();
@@ -185,7 +181,7 @@ public class FlightService {
      * @param flight nullable
      * @return true if departure time is correct, i.e. departure time not earlier than now
      */
-    public static boolean notDepartedYet(Flight flight){
+    private static boolean notDepartedYet(Flight flight) {
         if (flight == null) {throw new IllegalArgumentException("Flight must not be null");}
         return LocalDateTime.now().isBefore(FlightService.getFlightDepartureTime(flight));
     }
@@ -196,7 +192,7 @@ public class FlightService {
      * @return departure time of first segment
      * Throws if null arg provided or first segment is empty
      */
-    public static LocalDateTime getFlightDepartureTime(Flight flight){
+    private static LocalDateTime getFlightDepartureTime(Flight flight) {
         throwIfNull(flight);
         throwIfNull(flight.getSegments());
         throwIfNull(flight.getSegments().get(0));
@@ -209,7 +205,7 @@ public class FlightService {
      * @return departure time of first segment
      * Throws if null arg provided or first segment is empty
      */
-    public static LocalDateTime getFlightArrivalTime(Flight flight){
+    private static LocalDateTime getFlightArrivalTime(Flight flight) {
         throwIfNull(flight);
         throwIfNull(flight.getSegments());
         if (flight.getSegments().isEmpty()) {throw new IllegalArgumentException("Flight must have at least one segment");}
@@ -223,7 +219,7 @@ public class FlightService {
      * @param segment nullable, throws if null arg provided
      * @return true if departure moment is before arrival moment, and departure time is not past
      */
-    public static boolean segmentScheduleIsCorrect(Segment segment) {
+    private static boolean segmentScheduleIsCorrect(Segment segment) {
         throwIfNull(segment);
         return segmentArrAfterDep(segment) & segmentDepartureIsLaterThanNow(segment);
     }
@@ -259,16 +255,24 @@ public class FlightService {
         return flightArrivalIsAfterDeparture(flight);
     }
 
-    public static boolean segmentDepartureIsLaterThanNow(Segment segment) {
+    private static boolean segmentDepartureIsLaterThanNow(Segment segment) {
         throwIfNull(segment);
         return segment.getDepartureDate().isAfter(LocalDateTime.now());
     }
-
-    //TODO: compose method to make sure segments are not overlaid
 
     private static void throwIfNull(Object object) {
         if (object == null) {
             throw new IllegalArgumentException("Argument must not be null");
         }
+    }
+
+    /**
+     * As FlightBuilder.createFlights() method is not accesible from outside of com.gridnine.testing package,
+     * so public getTestFlightList() method is created for testing purposes
+     *
+     * @return test list of flight created by FlightBuilder.createFlights()
+     */
+    public static List<Flight> getTestFlightList() {
+        return FlightBuilder.createFlights();
     }
 }
