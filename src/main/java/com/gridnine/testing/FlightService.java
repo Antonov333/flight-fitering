@@ -46,20 +46,63 @@ public class FlightService {
      * i.e. departure moment is before arrival
      */
     public FlightService getFlightsWithArrivalAfterDeparture(){
-        return new FlightService(flights.stream().filter(FlightService::flightArrivalIsAfterDeparture).toList());
+        return getFlightsWithArrivalAfterDeparture(flights);
     }
 
-    public FlightService getFlightsNotDepartedYet(){
-        return new FlightService(flights.stream().filter(FlightService::notDepartedYet).toList());
+    /**
+     * <h2>private static void printFlights(List<Flight> flights)</h2>
+     *
+     * @param flights If flights arg is null then throws. Normally prints provided list of flights to console
+     */
+
+    private static void printFlights(List<Flight> flights) {
+        throwIfNull(flights);
+        for (Flight f : flights) {
+            System.out.println(f.toString());
+        }
+    }
+
+    /**
+     * <h2>public FlightService getFlightsNotDepartedYet()</h2>
+     *
+     * @return list of flights with departure time later than now
+     */
+
+    public FlightService getFlightsNotDepartedYet() {
+        return FlightService.getFlightsNotDepartedYet(flights);
+    }
+
+    public void printFlights() {
+        printFlights(flights);
     }
 
     public static FlightService getFlightsNotDepartedYet(List<Flight> flights){
         throwIfNull(flights);
-        return new FlightService(flights.stream().filter(FlightService::notDepartedYet).toList());
+        List<Flight> flightList = getListOfFlightsNotDepartedYet(flights);
+        FlightService flightService = new FlightService(flightList);
+        flightService.printFlights();
+        return flightService;
     }
 
-    public static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights){
-        return new FlightService(getListOfFlightsWithArrivalAfterDeparture(flights));
+    private static List<Flight> getListOfFlightsNotDepartedYet(List<Flight> flights) {
+        throwIfNull(flights);
+        return flights.stream().filter(FlightService::notDepartedYet).toList();
+    }
+
+    /**
+     * <h2>public static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights))</h2>
+     * <b>No args</b>
+     * @return instant of FlightService class containing list of correctly scheduled flights,
+     * i.e. departure moment is before arrival
+     */
+    public static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights) {
+
+        throwIfNull(flights);
+
+        List<Flight> flightList = getListOfFlightsWithArrivalAfterDeparture(flights);
+        FlightService flightService = new FlightService(flightList);
+        flightService.printFlights();
+        return flightService;
     }
 
     /**<h2>public static List<Flight> getListOfFlightsWithArrivalAfterDeparture(List<Flight> flights)</h2>
@@ -67,8 +110,17 @@ public class FlightService {
      * @param flights nullable, method throws if null arg provided
      * @return list of flight with arrival time after departure
      */
-    public static List<Flight> getListOfFlightsWithArrivalAfterDeparture(List<Flight> flights){
-        return flights.stream().filter(FlightService::flightArrivalIsAfterDeparture).toList();
+    private static List<Flight> getListOfFlightsWithArrivalAfterDeparture(List<Flight> flights) {
+        throwIfNull(flights);
+        return flights.stream().filter(FlightService::allSegmentsArrAfterDep).toList();
+    }
+
+    public FlightService getFlightServiceWithFLightNoMoreTwoHoursLanded() {
+        List<Flight> flightList = flights;
+        flightList = flightList.stream()
+                .filter(flight -> FlightService.totalTimeLanded(flight) < TWO_HOURS)
+                .toList();
+        return new FlightService(flightList);
     }
 
     /**
@@ -163,34 +215,47 @@ public class FlightService {
 
     /**
      * <h2>segmentIsCorrect</h2>
-     * @param segment nullable
-     * @return true if departure moment is before arrival moment, and departure time is not in the past
+     * @param segment nullable, throws if null arg provided
+     * @return true if departure moment is before arrival moment, and departure time is not past
      */
-    public static boolean segmentIsCorrect(Segment segment){
+    public static boolean segmentScheduleIsCorrect(Segment segment) {
         throwIfNull(segment);
-        return segment.getDepartureDate().isBefore(segment.getArrivalDate())
-                &
-                LocalDateTime.now().isBefore(segment.getDepartureDate());
+        return segmentArrAfterDep(segment) & segmentDepartureIsLaterThanNow(segment);
     }
 
-    public static boolean flightIsCorrect(Flight flight){
-        boolean result = true;
+    /**
+     * <h2>segmentArrAfterDep</h2>
+     * @param segment nullable
+     * @return true if departure moment is before arrival moment
+     */
+    private static boolean segmentArrAfterDep(Segment segment){
+        throwIfNull(segment);
+        return segment.getDepartureDate().isBefore(segment.getArrivalDate());
+    }
+
+    /**
+     * <h2>public static boolean flightAllSegmentsArrAfterDep(Flight flight)</h2>
+     *
+     * @param flight nullable, throws if null arg provided
+     * @return true if all segment of flight provided as argument has arrival time after departure
+     */
+    private static boolean allSegmentsArrAfterDep(Flight flight){
 
         List<Segment> segments = flight.getSegments();
 
-        // Make sure all segments are correct
-
-        for (Segment s : segments ) {
-            if (!result) {return false;}
+        for (Segment s : segments) {
+            if (!segmentArrAfterDep(s)) {return false;
+            }
         }
-
-        // Make sure segment are not overlaid
-
-
-        //TODO: complete flightIsCorrect method
-
-        return result;
+        return true;
     }
+
+    public static boolean segmentDepartureIsLaterThanNow(Segment segment) {
+        throwIfNull(segment);
+        return segment.getDepartureDate().isAfter(LocalDateTime.now());
+    }
+
+    //TODO: compose method to make sure segments are not overlaid
 
     private static void throwIfNull(Object object) {
         if (object == null) {

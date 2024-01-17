@@ -19,13 +19,8 @@ public class Main {
 
 // Select flights with departure correctly scheduled
         FlightService flightService = new FlightService(FlightBuilder.createFlights());
-        setOfFlight = flightService.getFlightsWithArrivalAfterDeparture().getFlights();
-
-
-        setOfFlight = setOfFlight.stream()
-                .filter(FlightService::notDepartedYet).toList();
-        System.out.println("setOfFlight.size() = " + setOfFlight.size());
-        System.out.println(setOfFlight + "\n");
+        setOfFlight = flightService.getFlightsWithArrivalAfterDeparture()
+                .getFlightServiceWithFLightNoMoreTwoHoursLanded().getFlightsNotDepartedYet().getFlights();
 
 
 
