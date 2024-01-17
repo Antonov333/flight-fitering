@@ -6,8 +6,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
-
 
 /**
  * <h2>FlightService</h2>
@@ -25,9 +23,6 @@ public class FlightService {
      * constant equal to number of milliseconds in one hour
      */
     public static final long ONE_HOUR = 3600000;
-
-    private static final Logger logger = Logger.getLogger("FlightService");
-
     private final List<Flight> flights;
 
     FlightService(List<Flight> flights){
@@ -72,8 +67,9 @@ public class FlightService {
         return FlightService.getFlightsNotDepartedYet(flights);
     }
 
-    public void printFlights() {
+    public FlightService printFlights() {
         printFlights(flights);
+        return this;
     }
 
     public static FlightService getFlightsNotDepartedYet(List<Flight> flights){
@@ -96,9 +92,6 @@ public class FlightService {
      * i.e. departure moment is before arrival
      */
     public static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights) {
-
-        throwIfNull(flights);
-
         List<Flight> flightList = getListOfFlightsWithArrivalAfterDeparture(flights);
         FlightService flightService = new FlightService(flightList);
         flightService.printFlights();
@@ -115,12 +108,26 @@ public class FlightService {
         return flights.stream().filter(FlightService::allSegmentsArrAfterDep).toList();
     }
 
+    /**
+     * <h2>public FlightService getFlightServiceWithFLightNoMoreTwoHoursLanded()</h2>
+     *
+     * @return
+     */
     public FlightService getFlightServiceWithFLightNoMoreTwoHoursLanded() {
         List<Flight> flightList = flights;
         flightList = flightList.stream()
                 .filter(flight -> FlightService.totalTimeLanded(flight) < TWO_HOURS)
                 .toList();
-        return new FlightService(flightList);
+        FlightService flightService = new FlightService(flightList);
+        flightService.printFlights();
+        return flightService;
+    }
+
+    public FlightService printMessage(String message) {
+        if (!message.isEmpty()) {
+            System.out.println(message);
+        }
+        return this;
     }
 
     /**
@@ -158,8 +165,6 @@ public class FlightService {
                     - getDateAndTimeInMillis(segments.get(i-1).getArrivalDate());
             totalTimeLanded += landedTime;
         }
-
-        logger.info("totalTimeLanded=" + totalTimeLanded);
 
         return totalTimeLanded;
     }
@@ -236,10 +241,13 @@ public class FlightService {
     /**
      * <h2>public static boolean flightAllSegmentsArrAfterDep(Flight flight)</h2>
      *
-     * @param flight nullable, throws if null arg provided
-     * @return true if all segment of flight provided as argument has arrival time after departure
+     * @param flight method throws if null arg provided
+     * @return true if all segment of flight provided as argument has arrival time after departure,
+     * and flight also has arrival moment after departure
      */
     private static boolean allSegmentsArrAfterDep(Flight flight){
+
+        throwIfNull(flight);
 
         List<Segment> segments = flight.getSegments();
 
@@ -247,7 +255,8 @@ public class FlightService {
             if (!segmentArrAfterDep(s)) {return false;
             }
         }
-        return true;
+
+        return flightArrivalIsAfterDeparture(flight);
     }
 
     public static boolean segmentDepartureIsLaterThanNow(Segment segment) {
