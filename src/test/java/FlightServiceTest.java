@@ -14,7 +14,7 @@ public class FlightServiceTest {
         Assert.assertEquals(FlightService.TWO_HOURS, FlightService.ONE_HOUR * 2);
     }
 
-    private List<Flight> flightsList = FlightService.getTestFlightList();
+    private final List<Flight> flightsList = FlightService.getTestFlightList();
 
     @Test
     public void printTestFlightList() {

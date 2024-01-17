@@ -74,8 +74,7 @@ public class FlightService {
     private static FlightService getFlightsNotDepartedYet(List<Flight> flights) {
         throwIfNull(flights);
         List<Flight> flightList = getListOfFlightsNotDepartedYet(flights);
-        FlightService flightService = new FlightService(flightList);
-        return flightService;
+        return new FlightService(flightList);
     }
 
     private static List<Flight> getListOfFlightsNotDepartedYet(List<Flight> flights) {
@@ -91,8 +90,7 @@ public class FlightService {
      */
     private static FlightService getFlightsWithArrivalAfterDeparture(List<Flight> flights) {
         List<Flight> flightList = getListOfFlightsWithArrivalAfterDeparture(flights);
-        FlightService flightService = new FlightService(flightList);
-        return flightService;
+        return new FlightService(flightList);
     }
 
     /**<h2>public static List<Flight> getListOfFlightsWithArrivalAfterDeparture(List<Flight> flights)</h2>
@@ -108,15 +106,14 @@ public class FlightService {
     /**
      * <h2>public FlightService getFlightServiceWithFLightNoMoreTwoHoursLanded()</h2>
      *
-     * @return
+     * @return instance FlightService with list of flights with total time landed within 2 hours
      */
     public FlightService getFlightServiceWithFLightNoMoreTwoHoursLanded() {
         List<Flight> flightList = flights;
         flightList = flightList.stream()
                 .filter(flight -> FlightService.totalTimeLanded(flight) < TWO_HOURS)
                 .toList();
-        FlightService flightService = new FlightService(flightList);
-        return flightService;
+        return new FlightService(flightList);
     }
 
     public FlightService printMessage(String message) {
